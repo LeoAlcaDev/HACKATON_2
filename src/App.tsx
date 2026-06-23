@@ -1,14 +1,40 @@
-// Andamiaje inicial: por ahora App solo confirma que el tooling (Vite, React,
-// Tailwind y TypeScript estricto) está montado y funcionando. El árbol de rutas
-// real se cablea más adelante, cuando ya existan el cliente HTTP, el backbone de
-// auth, los primitivos de UI y el layout.
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { PrivateRoute } from './auth/PrivateRoute';
+import { AppLayout } from './components/AppLayout';
+import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/DashboardPage';
+import TropelsPage from './pages/TropelsPage';
+import SectorsPage from './pages/SectorsPage';
+import SectorStoryPage from './pages/SectorStoryPage';
+import NotFoundPage from './pages/NotFoundPage';
+import SignalsLayout from './pages/signals/SignalsLayout';
+import SignalsFeedPage from './pages/signals/SignalsFeedPage';
+import SignalDetailPage from './pages/signals/SignalDetailPage';
+
+// Árbol de rutas completo. /login es pública; todo lo demás cuelga de PrivateRoute
+// (redirige a /login sin sesión) y del AppLayout. El nesting de /signals se
+// mantiene tal cual porque los checkpoints dependen de que feed y detalle vivan
+// bajo el mismo Outlet.
 export default function App() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold">TropelCare Control Room</h1>
-        <p className="mt-2 text-slate-400">Andamiaje en construcción…</p>
-      </div>
-    </main>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+
+      <Route element={<PrivateRoute />}>
+        <Route element={<AppLayout />}>
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="tropels" element={<TropelsPage />} />
+          <Route path="signals" element={<SignalsLayout />}>
+            <Route index element={<SignalsFeedPage />} />
+            <Route path=":id" element={<SignalDetailPage />} />
+          </Route>
+          <Route path="sectors" element={<SectorsPage />} />
+          <Route path="sectors/:id/story" element={<SectorStoryPage />} />
+        </Route>
+      </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
   );
 }
