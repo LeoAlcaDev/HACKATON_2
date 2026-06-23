@@ -2,14 +2,13 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { PrivateRoute } from './auth/PrivateRoute';
 import { AppLayout } from './components/AppLayout';
 import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
-import TropelsPage from './pages/TropelsPage';
+import DashboardPage from './features/dashboard/DashboardPage';
+import TropelsPage from './features/tropels/TropelsPage';
 import SectorsPage from './pages/SectorsPage';
 import SectorStoryPage from './pages/SectorStoryPage';
 import NotFoundPage from './pages/NotFoundPage';
-import SignalsLayout from './pages/signals/SignalsLayout';
-import SignalsFeedPage from './pages/signals/SignalsFeedPage';
-import SignalDetailPage from './pages/signals/SignalDetailPage';
+import SignalsLayout from './features/signals/SignalsLayout';
+import SignalDetailPage from './features/signals/SignalDetailPage';
 
 // Árbol de rutas completo. /login es pública; todo lo demás cuelga de PrivateRoute
 // (redirige a /login sin sesión) y del AppLayout. El nesting de /signals se
@@ -26,7 +25,10 @@ export default function App() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="tropels" element={<TropelsPage />} />
           <Route path="signals" element={<SignalsLayout />}>
-            <Route index element={<SignalsFeedPage />} />
+            {/* El feed lo monta SignalsLayout directamente para que no se
+                desmonte al abrir el detalle; por eso el index no pinta nada y
+                el Outlet solo se usa para el panel del detalle (:id). */}
+            <Route index element={null} />
             <Route path=":id" element={<SignalDetailPage />} />
           </Route>
           <Route path="sectors" element={<SectorsPage />} />
