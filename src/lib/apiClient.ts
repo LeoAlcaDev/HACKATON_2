@@ -67,17 +67,38 @@ async function readBodySafe(response: Response): Promise<unknown> {
 }
 
 // Aceptamos un body como objeto cualquiera y lo serializamos a JSON nosotros, así
-// los callers no repiten JSON.stringify ni el Content-Type en cada llamada.
+// los callers no repiten JSON.stringify ni el Content-Type en cada llamada. El
+// campo `query` deja que los hooks pasen los parámetros como un objeto plano en
+// vez de armar el string a mano en cada llamada.
 export interface ApiRequestOptions extends Omit<RequestInit, 'body'> {
   body?: unknown;
+  query?: Record<string, string | number | boolean | undefined | null>;
+}
+
+// Serializa los parámetros de query y descarta los vacíos (undefined, null o
+// cadena vacía). Así la URL solo lleva los filtros que el usuario realmente eligió
+// y el backend recibe exactamente los parámetros activos, sin claves de más.
+function buildQueryString(query: ApiRequestOptions['query']): string {
+  if (!query) {
+    return '';
+  }
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value === undefined || value === null || value === '') {
+      continue;
+    }
+    params.set(key, String(value));
+  }
+  const serialized = params.toString();
+  return serialized ? `?${serialized}` : '';
 }
 
 export async function apiRequest<T>(
   path: string,
   options: ApiRequestOptions = {},
 ): Promise<T> {
-  const { body, headers, ...rest } = options;
-  const url = `${env.apiBaseUrl}${path}`;
+  const { body, headers, query, ...rest } = options;
+  const url = `${env.apiBaseUrl}${path}${buildQueryString(query)}`;
 
   const finalHeaders = new Headers(headers);
   if (authToken) {
