@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+/* Aseguramos que el shell ocupe toda la altura disponible para que los estados
+   a pantalla completa (loading, error, login) se centren bien en vertical. */
+html,
+body,
+#root {
+  min-height: 100%;
+}

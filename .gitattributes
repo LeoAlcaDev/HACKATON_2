@@ -1,0 +1,4 @@
+# Normalizamos finales de línea a LF en el repo para que no haya ruido entre
+# Windows y Linux. Git convierte a CRLF en el working copy de Windows si hace
+# falta, pero lo versionado queda siempre con LF.
+* text=auto eol=lf

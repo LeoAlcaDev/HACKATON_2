@@ -1,0 +1,6 @@
+# pnpm 10+ lee la configuración del proyecto desde aquí (ya no desde el campo
+# "pnpm" de package.json). Autorizamos explícitamente el build script de esbuild
+# porque Vite lo necesita para preparar su binario nativo; si no, pnpm lo bloquea
+# por seguridad y el build/preview fallan.
+allowBuilds:
+  esbuild: true
